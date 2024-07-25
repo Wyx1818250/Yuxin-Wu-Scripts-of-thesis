@@ -1,0 +1,146 @@
+# 1. Data pre-processing by BERT tokenizer
+file_path = "C:\\Users\\15039293175\\anaconda3\\Interview 2-Ashley.txt"
+with open(file_path, 'r', encoding='utf-8') as file:
+     text = file.read()
+     from transformers import BertModel, BertTokenizer
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+
+model = BertModel.from_pretrained('bert-base-uncased')
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+file_path = "C:\\Users\\15039293175\\anaconda3\\Interview 2-Ashley.txt"
+
+with open(file_path, 'r', encoding='utf-8') as file:
+     text = file.read()
+import string
+
+# Remove punctuation from the text
+text = text.translate(str.maketrans('', '', string.punctuation))
+# Tokenize the text without splitting the file path
+tokenized_text = tokenizer.encode(text, add_special_tokens=False)
+
+decoded_text = tokenizer.convert_ids_to_tokens(tokenized_text, skip_special_tokens=True)
+
+print("Tokenized text:", decoded_text)
+
+#2. Specific example of data-preprocess
+
+import string
+from transformers import BertTokenizer
+
+file_path = "D:\桌面文件\Interview 1-Kasia.txt"
+
+with open(file_path, 'r', encoding='utf-8', errors='ignore') as file:
+    text = file.read()
+
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+
+tokenized_text = tokenizer.tokenize(text)
+
+# Define a list of stopwords, pronouns, prepositions, and common words
+stopwords_list = set(["i", "m", "im", "is", "t", "are", "you", "he", "she", "it","interview", "s", "…", "##ee", "##er","er", "ee", "participant", "1", "we", "they", "me", "my", "your", "his", "her", "its", "our", "their",
+                      "this", "that", "these", "those", "a", "an", "the", "and", "or", "but", "for", "of", "on", "in", "to",
+                      "with", "at", "by", "about", "as", "into", "from", "through", "between", "over", "under", "above", "below",
+                      "up", "down", "out", "off", "on", "off", "over", "under", "behind", "before", "after", "during", "since",
+                      "while", "because", "although", "though", "if", "unless", "until", "so", "than", "then", "when", "where",
+                      "why", "how", "what", "which", "who", "whom", "whose", "whether", "while", "until", "because", "since"])
+
+# Filter out stopwords, pronouns, prepositions, and common words
+filtered_tokens = [token for token in tokenized_text if token.lower() not in stopwords_list]
+# Remove punctuation from the filtered tokens
+filtered_tokens = [token for token in filtered_tokens if token not in string.punctuation]
+
+print("Tokenized text after removing stopwords, pronouns, prepositions, and common words:", filtered_tokens)
+
+#3. from textblob import TextBlob-Sentiment polarity and subjectivity score
+
+path_to_tokenized_file = "C:\\Users\\15039293175\\Desktop\\VS Code Practical\\Tokenized words.txt"
+
+with open('C:\\Users\\15039293175\\Desktop\\VS Code Practical\\Tokenized words.txt', 'r') as file:
+    tokenized_text = file.read().strip()
+
+blob = TextBlob(tokenized_text)
+
+polarity, subjectivity = blob.sentiment
+
+print("Sentiment Polarity:", polarity)
+print("Subjectivity:", subjectivity)
+
+# 4. import matplotlib.pyplot as plt-Visualization to figure
+
+sentiment_polarity = 0.2177721796505242
+subjectivity = 0.4788551128358818
+
+labels = ['sentiment_polarity', 'Subjectivity']
+scores = [0.2177721796505242, 0.4788551128358818]
+
+plt.bar(labels, scores, color=['blue', 'orange'])
+
+plt.xlabel('Sentiment Measure')
+plt.ylabel('Score')
+plt.title('Sentiment Analysis Results')
+plt.ylim(0, 1)  # Set y-axis limits from 0 to 1
+
+plt.show()
+# 5. Emotion classification
+from transformers import BertTokenizer, BertForSequenceClassification
+import torch
+tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
+model = BertForSequenceClassification.from_pretrained('bert-base-uncased', num_labels=3)  # 3 classes: positive, neutral, negative
+
+tokenized_file_path = "C:\\Users\\15039293175\\Desktop\\VS Code Practical\\Tokenized words.txt"  # Replace with the actual path to your tokenized file
+with open('C:\\Users\\15039293175\\Desktop\\VS Code Practical\\Tokenized words.txt', 'r') as file:
+    text = file.read().strip()
+encoded_input = tokenizer(text, padding=True, truncation=True, return_tensors='pt')
+with torch.no_grad():
+    outputs = model(**encoded_input)
+    logits = outputs.logits
+    probs = torch.softmax(logits, dim=1).squeeze()
+
+positive_score = probs[0].item()
+neutral_score = probs[1].item()
+negative_score = probs[2].item()
+import matplotlib.pyplot as plt
+
+labels = ['Positive', 'Neutral', 'Negative']
+scores = [positive_score, neutral_score, negative_score]
+
+plt.bar(labels, scores, color=['green', 'blue', 'red'])
+plt.xlabel('Sentiment Class')
+plt.ylabel('Score')
+plt.title('Sentiment Analysis Results')
+plt.ylim(0, 1)  # Set y-axis limits from 0 to 1
+plt.show()
+import os
+
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
+# 6. Scatter plot of emotion distribution of each line
+import matplotlib.pyplot as plt
+from textblob import TextBlob
+
+file_path = "path/to/your/text/file.txt"
+
+with open(file_path, 'r', encoding='utf-8') as file:
+    text = file.read()
+
+sentiment_scores = []
+for line in text.strip().split('\n'):
+    blob = TextBlob(line)
+    sentiment_scores.append((blob.sentiment.polarity, blob.sentiment.subjectivity))
+
+positive = [(p, s) for p, s in sentiment_scores if p > 0]
+neutral = [(p, s) for p, s in sentiment_scores if p == 0]
+negative = [(p, s) for p, s in sentiment_scores if p < 0]
+
+# Create scatter plot
+plt.figure(figsize=(8, 6))
+plt.scatter(*zip(*positive), color='green', label='Positive')
+plt.scatter(*zip(*neutral), color='blue', label='Neutral')
+plt.scatter(*zip(*negative), color='red', label='Negative')
+
+plt.title('Emotional Distribution of Text')
+plt.xlabel('Polarity')
+plt.ylabel('Subjectivity')
+plt.legend()
+plt.grid(True)
+plt.show()
